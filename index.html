@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instalação do Oracle 19c</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 20px; background-color: #f4f4f4; }
+        pre { background: #282c34; color: #abb2bf; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        h1, h2 { color: #333; }
+        .container { max-width: 800px; margin: auto; padding: 20px; background: #fff; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Instalação do Oracle Database 19c no Oracle Linux</h1>
+
+        <h2>1️⃣ Pré-requisitos</h2>
+        <p>Instale os pacotes necessários:</p>
+        <pre>yum install oracle-database-preinstall-19c</pre>
+
+        <h2>2️⃣ Desabilitar o firewall</h2>
+        <pre>
+systemctl stop firewalld
+systemctl disable firewalld
+sestatus
+vi /etc/selinux/config
+# Altere a linha para:
+SELINUX=disabled
+reboot
+        </pre>
+
+        <h2>3️⃣ Criar diretórios necessários</h2>
+        <pre>
+mkdir -p /u01/app/oracle
+mkdir -p /u01/app/oracle/product/19.0.0.0/dbhome_1
+        </pre>
+
+        <h2>4️⃣ Configurar variáveis de ambiente</h2>
+        <pre>
+vi env_ORCL
+# Adicione as seguintes linhas:
+export ORACLE_BASE=/u01/app/oracle
+export ORACLE_HOME=/u01/app/oracle/product/19.0.0.0/dbhome_1
+export TNS_ADMIN=/u01/app/grid/network/admin
+export ORACLE_SID=ORCL
+export PATH=/usr/sbin:$PATH
+export PATH=$ORACLE_HOME/bin:$ORACLE_HOME/OPatch:$PATH
+export LD_LIBRARY_PATH=$ORACLE_HOME/lib:/lib:/usr/lib
+export CLASSPATH=$ORACLE_HOME/JRE:$ORACLE_HOME/jlib:$ORACLE_HOME/rdbms/jlib
+
+# Aplicar as variáveis:
+. env_ORCL
+        </pre>
+
+        <h2>5️⃣ Extração do instalador</h2>
+        <pre>
+cd $ORACLE_HOME
+cp /u01/app/instaladores/oracle19-3.zip .
+unzip oracle19-3.zip
+        </pre>
+
+        <h2>6️⃣ Configuração do VNC</h2>
+        <pre>
+yum install tigervnc-server xterm openmotif
+cd ~/.vnc
+vi xstartup
+# Adicione a linha:
+mwm &
+        </pre>
+
+        <h2>7️⃣ Abrir conexão VNC</h2>
+        <pre>
+ssh usuario@192.168.101.74 -L5901:localhost:5901
+su - oracle
+vncserver -geometry 1280x1024
+        </pre>
+
+        <h2>8️⃣ Executar o instalador</h2>
+        <pre>
+cd $ORACLE_HOME
+./runInstaller.sh
+# Escolha:
+# - Setup Software Only
+# - Single Instance
+# - Enterprise/Standard Edition
+        </pre>
+
+        <h2>9️⃣ Executar script root</h2>
+        <pre>
+/u01/app/oracle/product/19.0.0.0/dbhome_1/root.sh
+        </pre>
+
+        <h2>✅ Finalização</h2>
+        <p>Verifique os logs:</p>
+        <pre>/u01/app/oraInventory/logs/InstallActions*.log</pre>
+    </div>
+</body>
+</html>
