@@ -4,21 +4,71 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Documentações Técnicas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 20px; background-color: #f4f4f4; }
-        h1 { color: #333; }
-        .menu { list-style-type: none; padding: 0; }
-        .menu li { background: #ffffff; margin: 10px 0; padding: 15px; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .menu a { color: #333; text-decoration: none; font-size: 18px; }
+        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 0; background-color: #f4f4f4; }
+        header { background-color: #333; color: #fff; padding: 20px; text-align: center; }
+        h1 { margin: 0; font-size: 28px; }
+        header p { margin: 5px 0 0; font-size: 16px; }
+        .menu { list-style-type: none; padding: 0; margin: 20px; }
+        .menu li { background: #ffffff; margin: 15px 0; padding: 15px; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .menu a { color: #333; text-decoration: none; font-size: 18px; display: flex; align-items: center; }
         .menu a:hover { text-decoration: underline; }
+        .menu i { margin-right: 10px; }
+        .menu p { margin: 5px 0 0 28px; font-size: 14px; color: #666; }
+        footer { background-color: #333; color: #fff; text-align: center; padding: 10px; margin-top: 20px; }
+        footer p { margin: 0; }
+        .back-to-top { position: fixed; bottom: 20px; right: 20px; background-color: #333; color: #fff; padding: 10px; border-radius: 50%; text-decoration: none; display: none; }
+        .back-to-top.show { display: block; }
+        @media (max-width: 600px) {
+            body { margin: 10px; }
+            h1 { font-size: 24px; }
+            .menu li { padding: 10px; }
+            .menu a { font-size: 16px; }
+        }
     </style>
 </head>
 <body>
-    <h1>Escolha a documentação que deseja ler</h1>
+    <header>
+        <h1>Documentações Técnicas</h1>
+        <p>Seu repositório de guias e tutoriais</p>
+    </header>
+
+    <h2 style="margin: 20px;">Escolha a documentação que deseja ler</h2>
     <ul class="menu">
-        <li><a href="https://brunoschmitz-portes.github.io/documentacoes-oracle/instalar_oracle_19c.html" target="_blank">Instalação do Oracle 19c</a></li>
-        <li><a href="outra_documentacao.html" target="_blank">Outra Documentação</a></li>
+        <li>
+            <a href="https://brunoschmitz-portes.github.io/documentacoes-oracle/instalar_oracle_19c.html" target="_blank">
+                <i class="fas fa-database"></i> Instalação do Oracle 19c
+            </a>
+            <p>Guia passo a passo para instalar o Oracle 19c no Windows e Linux.</p>
+        </li>
+        <li>
+            <a href="outra_documentacao.html" target="_blank">
+                <i class="fas fa-book"></i> Outra Documentação
+            </a>
+            <p>Descrição breve sobre o conteúdo desta documentação.</p>
+        </li>
         <!-- Adicione mais links para outras documentações -->
     </ul>
+
+    <footer>
+        <p>&copy; 2023 Bruno Schmitz. Todos os direitos reservados.</p>
+    </footer>
+
+    <a href="#" class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+
+    <script>
+        // Script para mostrar/esconder o botão "Voltar ao topo"
+        const backToTopButton = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTopButton.classList.add('show');
+            } else {
+                backToTopButton.classList.remove('show');
+            }
+        });
+    </script>
 </body>
 </html>
