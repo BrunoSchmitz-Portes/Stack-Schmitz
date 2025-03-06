@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instalação do Oracle Grid 19c no Oracle Linux 7.9</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.8;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        h1 {
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+        }
+        h2 {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            overflow-x: auto;
+        }
+        code {
+            color: #d63384;
+        }
+        .note {
+            background-color: #fff3cd;
+            padding: 10px;
+            border-left: 4px solid #ffc107;
+            margin: 20px 0;
+        }
+        .warning {
+            background-color: #f8d7da;
+            padding: 10px;
+            border-left: 4px solid #dc3545;
+            margin: 20px 0;
+        }
+        .command {
+            background-color: #e9ecef;
+            padding: 10px;
+            border-left: 4px solid #6c757d;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Instalação do Oracle Grid 19c no Oracle Linux 7.9</h1>
+
+    <h2>1. Pré-requisitos</h2>
+    <div class="command">
+        <strong>Rode o pré-install do Oracle (ambos os nós):</strong>
+        <pre><code>yum install oracle-database-preinstall-19c</code></pre>
+    </div>
+
+    <h3>Instalar as LIBS do ASM (ambos os nós):</h3>
+    <div class="command">
+        <pre><code>yum install oracleasmlib
+yum install -y oracleasm-support
+yum install -y oracleasm</code></pre>
+    </div>
+    <div class="note">
+        <strong>Nota:</strong> Caso as bibliotecas não sejam encontradas no Oracle Linux 7.9, atualize o kernel:
+        <pre><code>yum install kmod-oracleasm</code></pre>
+    </div>
+
+    <h2>2. Desabilitar Firewall e SELinux</h2>
+    <div class="command">
+        <pre><code>systemctl stop firewalld
+systemctl disable firewalld
+
+sestatus
+
+vi /etc/selinux/config</code></pre>
+    </div>
+    <p>Altere a linha <code>SELINUX</code> para:</p>
+    <div class="command">
+        <pre><code>SELINUX=disabled</code></pre>
+    </div>
+    <p>Reinicie o sistema:</p>
+    <div class="command">
+        <pre><code>reboot</code></pre>
+    </div>
+
+    <h2>3. Preparar Diretórios e Permissões</h2>
+    <div class="command">
+        <pre><code>chown -R oracle: /u01/
+
+su - oracle
+
+mkdir -p /u01/app/grid
+GRID_HOME=/u01/app/grid
+
+mkdir -p /u01/app/gridbase
+GRID_BASE=/u01/app/gridbase
+
+mkdir -p /u01/app/instaladores</code></pre>
+    </div>
+    <div class="warning">
+        <strong>Atenção:</strong> Certifique-se de que todos os diretórios tenham permissões adequadas para o usuário <code>oracle</code>.
+    </div>
+
+    <h2>4. Configurar Variáveis de Ambiente</h2>
+    <p>Crie o arquivo <code>env_grid</code> com as seguintes variáveis:</p>
+    <div class="command">
+        <pre><code>export ORACLE_BASE=/u01/app/grid/base
+export ORACLE_HOME=/u01/app/grid
+export GRID_HOME=/u01/app/grid
+export TNS_ADMIN=/u01/app/grid/network/admin
+export ORACLE_SID=+ASM1
+export PATH=/usr/sbin:$PATH
+export PATH=$ORACLE_HOME/bin:$ORACLE_HOME/OPatch:$PATH
+export LD_LIBRARY_PATH=$ORACLE_HOME/lib:/lib:/usr/lib
+export CLASSPATH=$ORACLE_HOME/JRE:$ORACLE_HOME/jlib:$ORACLE_HOME/rdbms/jlib</code></pre>
+    </div>
+
+    <h2>5. Extrair o Software do Grid</h2>
+    <div class="command">
+        <pre><code>. env_grid
+cd $GRID_HOME
+cp /u01/instaladores/LINUX.X64_193000_grid_home.zip .
+unzip LINUX.X64_193000_grid_home.zip</code></pre>
+    </div>
+
+    <h2>6. Configurar Discos ASM</h2>
+    <p>Identifique e formate os discos:</p>
+    <div class="command">
+        <pre><code>fdisk -l</code></pre>
+    </div>
+    <p>Formate as unidades:</p>
+    <div class="command">
+        <pre><code>fdisk /dev/vdd
+n
+p
+w</code></pre>
+    </div>
+    <p>Escaneie os discos:</p>
+    <div class="command">
+        <pre><code>oracleasm scandisks
+oracleasm configure -i</code></pre>
+    </div>
+    <p>Reinicie o sistema:</p>
+    <div class="command">
+        <pre><code>reboot</code></pre>
+    </div>
+
+    <h2>7. Criar Discos ASM</h2>
+    <div class="command">
+        <pre><code>oracleasm createdisk FRA /dev/vde1
+oracleasm createdisk DATA /dev/vdd1
+oracleasm createdisk REDO01 /dev/vdf1
+oracleasm createdisk REDO02 /dev/vdg1</code></pre>
+    </div>
+    <p>Verifique os discos criados:</p>
+    <div class="command">
+        <pre><code>oracleasm listdisks
+oracleasm scandisks</code></pre>
+    </div>
+
+    <h2>8. Configurar Grupos de Usuários</h2>
+    <div class="command">
+        <pre><code>groupadd asmadmin
+groupadd asmdba
+groupadd asmoper
+usermod -G dba,asmadmin,asmdba,asmoper oracle</code></pre>
+    </div>
+    <p>Verifique as permissões:</p>
+    <div class="command">
+        <pre><code>id -a oracle</code></pre>
+    </div>
+
+    <h2>9. Configurar VNC</h2>
+    <div class="command">
+        <pre><code>yum install tigervnc-server
+yum install xterm
+yum install openmotif</code></pre>
+    </div>
+    <p>Configure o VNC:</p>
+    <div class="command">
+        <pre><code>cd .vnc
+vi xstartup</code></pre>
+    </div>
+    <p>Adicione a seguinte linha ao final do arquivo:</p>
+    <div class="command">
+        <pre><code>mwm &</code></pre>
+    </div>
+    <p>Inicie o VNC:</p>
+    <div class="command">
+        <pre><code>vncserver -geometry 1280x900</code></pre>
+    </div>
+
+    <h2>10. Instalar o Oracle Grid</h2>
+    <div class="command">
+        <pre><code>./gridSetup.sh</code></pre>
+    </div>
+    <p>Selecione <strong>Standalone</strong> e configure:</p>
+    <ul>
+        <li>Change discovery path: <code>/dev/oracleasm/disks/*</code></li>
+        <li>Redundância: <code>external</code></li>
+        <li>Senha do sys: <code>coloque uma senha</code></li>
+    </ul>
+
+    <h2>11. Instalar Pacote cvuqdisk</h2>
+    <div class="command">
+        <pre><code>cd $GRID_HOME/cv/rpm
+rpm -iv cvuqdisk-1.0.10-1.rpm</code></pre>
+    </div>
+
+    <h2>12. Executar Scripts de Root</h2>
+    <div class="command">
+        <pre><code>/u01/app/grid/oraInventory/orainstRoot.sh
+/u01/app/grid/root.sh</code></pre>
+    </div>
+
+    <h2>13. Finalização</h2>
+    <p>Após a instalação, valide o funcionamento do Oracle Grid 19c.</p>
+
+    <div class="note">
+        <strong>Referência:</strong> Para mais detalhes, consulte a <a href="https://docs.oracle.com/en/database/oracle/oracle-database/21/hpdbi/procedure-for-configuring-oracle-software-owner-environments.html#GUID-9390F139-EA37-4C57-BF1F-E1991ACE528E" target="_blank">documentação oficial da Oracle</a>.
+    </div>
+</body>
+</html>
