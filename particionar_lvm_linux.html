@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Como criar uma partição no Linux e configurar LVM</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.7;
+      background-color: #f4f4f4;
+      color: #333;
+      padding: 20px;
+      max-width: 900px;
+      margin: auto;
+    }
+    h1, h2 {
+      color: #2c3e50;
+    }
+    code {
+      background: #eee;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+    .step {
+      margin-bottom: 30px;
+    }
+    .important {
+      background: #fff3cd;
+      padding: 10px;
+      border-left: 6px solid #ffc107;
+      margin-top: 15px;
+      border-radius: 4px;
+    }
+    .icon {
+      margin-right: 6px;
+      color: #2980b9;
+    }
+    .note {
+      background: #d1ecf1;
+      padding: 10px;
+      border-left: 6px solid #0c5460;
+      border-radius: 4px;
+      margin: 15px 0;
+    }
+    .highlight {
+      background-color: #e2ffe2;
+      border-left: 6px solid #28a745;
+      padding: 10px;
+      border-radius: 4px;
+      margin: 15px 0;
+    }
+    footer {
+      text-align: center;
+      margin-top: 50px;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <h1><i class="fas fa-hdd icon"></i> Como criar uma partição no Linux e configurar LVM</h1>
+
+  <p><strong>Atualizado:</strong> Agosto/2025</p>
+
+  <div class="step">
+    <h2>🧩 Introdução</h2>
+    <p>
+      No Linux, uma <strong>partição</strong> é uma divisão lógica do disco que separa áreas de armazenamento.
+      Essa segmentação é útil para gerenciar diferentes tipos de dados, sistemas de arquivos ou operações como swap, boot e armazenamento geral.
+    </p>
+    <p>
+      O <strong>LVM (Logical Volume Manager)</strong> permite mais flexibilidade: você pode redimensionar, agrupar ou mover volumes lógicos de forma dinâmica, ideal para ambientes que exigem agilidade e gerenciamento eficiente de disco.
+    </p>
+  </div>
+
+  <div class="step">
+    <h2>🔍 1. Verifique os discos disponíveis</h2>
+    <p>Após adicionar um novo disco, utilize o comando abaixo para visualizá-lo:</p>
+    <div class="highlight">
+      <code>fdisk -l</code>
+    </div>
+    <div class="note">
+      Verifique o nome correto do disco, geralmente algo como <code>/dev/vdb</code>, <code>/dev/sdb</code> ou similar.
+    </div>
+  </div>
+
+  <div class="step">
+    <h2>💾 2. Criar uma nova partição no disco</h2>
+    <p>Use o <code>fdisk</code> para inicializar e criar uma nova partição:</p>
+    <div class="highlight">
+      <code>fdisk /dev/vdb</code>
+    </div>
+    <p>Siga as etapas interativas abaixo:</p>
+    <ul>
+      <li><code>n</code> – Criar nova partição</li>
+      <li><code>p</code> – Tipo primária</li>
+      <li><code>w</code> – Salvar alterações e sair</li>
+    </ul>
+
+    <div class="important">
+      <strong>Importante:</strong> Após isso, a nova partição estará disponível como <code>/dev/vdb1</code>.
+    </div>
+  </div>
+
+  <div class="step">
+    <h2>📦 3. Criar volume físico (PV)</h2>
+    <p>Inicialize a partição para uso com LVM:</p>
+    <div class="highlight">
+      <code>pvcreate /dev/vdb1</code>
+    </div>
+  </div>
+
+  <div class="step">
+    <h2>🧱 4. Criar grupo de volumes (VG)</h2>
+    <p>Agrupe um ou mais PVs dentro de um Volume Group (VG):</p>
+    <div class="highlight">
+      <code>vgcreate vg_teste /dev/vdb1</code>
+    </div>
+  </div>
+
+  <div class="step">
+    <h2>📂 5. Criar volume lógico (LV)</h2>
+    <p>Crie o volume lógico dentro do grupo:</p>
+    <div class="highlight">
+      <code>lvcreate -n teste -l 100%FREE vg_teste</code>
+    </div>
+    <p>Isso criará um volume lógico com 100% do espaço disponível.</p>
+  </div>
+
+  <div class="step">
+    <h2>🧾 6. Formatar o volume</h2>
+    <p>Escolha um sistema de arquivos e formate o volume:</p>
+    <div class="highlight">
+      <code>mkfs -t ext4 /dev/vg_teste/teste</code>
+    </div>
+    <p>Você pode substituir <code>ext4</code> por <code>xfs</code> ou outro tipo de filesystem conforme o seu ambiente.</p>
+  </div>
+
+  <div class="step">
+    <h2>📁 7. Montar a partição</h2>
+    <p>Crie o ponto de montagem (caso não exista) e monte o volume:</p>
+    <div class="highlight">
+      <code>mkdir -p /mnt/meu_disco</code><br>
+      <code>mount /dev/vg_teste/teste /mnt/meu_disco</code>
+    </div>
+    <div class="note">
+      Para montar automaticamente no boot, edite o <code>/etc/fstab</code> com a entrada correspondente.
+    </div>
+  </div>
+
+  <footer>
+    <p>Documentação criada por Bruno Schmitz – Stack-Schmitz © 2025</p>
+  </footer>
+</body>
+</html>
