@@ -1,101 +1,193 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stack-Schmitz | Documentações Técnicas</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 0; background-color: #f4f4f4; }
-        header { background-color: #333; color: #fff; padding: 20px; text-align: center; }
-        h1 { margin: 0; font-size: 28px; }
-        header p { margin: 5px 0 0; font-size: 16px; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Stack-Schmitz | Documentações Técnicas</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; background-color: #f4f4f4; }
+    header { background-color: #333; color: #fff; padding: 20px; text-align: center; }
+    h1 { margin: 0; font-size: 28px; }
+    header p { margin: 5px 0 0; font-size: 16px; }
 
-        .category-title {
-            margin: 30px 20px 10px;
-            font-size: 22px;
-            color: #222;
-            border-bottom: 2px solid #ccc;
-            padding-bottom: 5px;
-        }
+    .category-buttons { display: flex; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
+    .category-buttons button {
+      margin: 5px;
+      padding: 10px 15px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      background-color: #333;
+      color: #fff;
+      cursor: pointer;
+    }
+    .category-buttons button:hover {
+      background-color: #555;
+    }
+    .category-buttons button.active {
+      background-color: #007BFF;
+    }
 
-        .menu { list-style-type: none; padding: 0; margin: 20px; }
-        .menu li { background: #ffffff; margin: 15px 0; padding: 15px; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .menu a { color: #333; text-decoration: none; font-size: 18px; display: flex; align-items: center; }
-        .menu a:hover { text-decoration: underline; }
-        .menu i { margin-right: 10px; }
-        .menu p { margin: 5px 0 0 28px; font-size: 14px; color: #666; }
+    .category-section {
+      display: none;
+      margin: 20px;
+    }
 
-        footer { background-color: #333; color: #fff; text-align: center; padding: 10px; margin-top: 20px; }
-        footer p { margin: 0; }
+    .category-section.active {
+      display: block;
+    }
 
-        .back-to-top { position: fixed; bottom: 20px; right: 20px; background-color: #333; color: #fff; padding: 10px; border-radius: 50%; text-decoration: none; display: none; }
-        .back-to-top.show { display: block; }
+    .menu { list-style-type: none; padding: 0; }
+    .menu li {
+      background: #fff;
+      margin: 15px 0;
+      padding: 15px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .menu a {
+      color: #333;
+      text-decoration: none;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+    }
+    .menu a:hover { text-decoration: underline; }
+    .menu i { margin-right: 10px; }
+    .menu p {
+      margin: 5px 0 0 28px;
+      font-size: 14px;
+      color: #666;
+    }
 
-        @media (max-width: 600px) {
-            body { margin: 10px; }
-            h1 { font-size: 24px; }
-            .menu li { padding: 10px; }
-            .menu a { font-size: 16px; }
-        }
-    </style>
+    footer {
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      padding: 10px;
+      margin-top: 40px;
+    }
+
+    .back-to-top {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #333;
+      color: #fff;
+      padding: 10px;
+      border-radius: 50%;
+      text-decoration: none;
+      display: none;
+    }
+
+    .back-to-top.show {
+      display: block;
+    }
+
+    @media (max-width: 600px) {
+      body { margin: 10px; }
+      h1 { font-size: 24px; }
+      .menu li { padding: 10px; }
+      .menu a { font-size: 16px; }
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <h1>Stack-Schmitz</h1>
-        <p>Documentações Técnicas de Infraestrutura, Cloud e Banco de Dados</p>
-    </header>
+  <header>
+    <h1>Stack-Schmitz</h1>
+    <p>Documentações Técnicas de Infraestrutura, Cloud e Banco de Dados</p>
+  </header>
 
-    <h2 style="margin: 20px;">Escolha a documentação que deseja ler</h2>
+  <!-- Botões de categoria -->
+  <div class="category-buttons">
+    <button class="category-btn active" data-category="oracle">Documentações ORACLE</button>
+    <button class="category-btn" data-category="infra">Infraestrutura</button>
+    <!-- Adicione mais categorias aqui -->
+  </div>
 
-    <!-- CATEGORIA: Documentações ORACLE -->
-    <h3 class="category-title">Documentações ORACLE</h3>
+  <!-- Categoria: ORACLE -->
+  <div class="category-section active" id="oracle">
     <ul class="menu">
-        <li>
-            <a href="instalar_oracle_19c.html" target="_blank">
-                <i class="fas fa-database"></i> Instalação do Oracle 19c
-            </a>
-            <p>Guia passo a passo para instalar o Oracle 19c no Linux.</p>
-        </li>
-        <li>
-            <a href="instalar_oracle_grid_19c.html" target="_blank">
-                <i class="fas fa-cogs"></i> Instalação do Oracle Grid 19c
-            </a>
-            <p>Guia completo para instalar o Oracle Grid Standalone 19c no Oracle Linux 7.9.</p>
-        </li>
+      <li>
+        <a href="instalar_oracle_19c.html" target="_blank">
+          <i class="fas fa-database"></i> Instalação do Oracle 19c
+        </a>
+        <p>Guia passo a passo para instalar o Oracle 19c no Linux.</p>
+      </li>
+      <li>
+        <a href="instalar_oracle_grid_19c.html" target="_blank">
+          <i class="fas fa-cogs"></i> Instalação do Oracle Grid 19c
+        </a>
+        <p>Guia completo para instalar o Oracle Grid Standalone 19c no Oracle Linux 7.9.</p>
+      </li>
     </ul>
+  </div>
 
-    <!-- MODELO PARA NOVAS CATEGORIAS -->
-    <!-- 
-    <h3 class="category-title">Documentações LINUX</h3>
+  <!-- Categoria: INFRA -->
+  <div class="category-section" id="infra">
     <ul class="menu">
-        <li>
-            <a href="nome_arquivo.html" target="_blank">
-                <i class="fas fa-terminal"></i> Nome da Documentação
-            </a>
-            <p>Descrição do conteúdo.</p>
-        </li>
+      <li>
+        <a href="hardening_linux.html" target="_blank">
+          <i class="fas fa-shield-alt"></i> Hardening Linux
+        </a>
+        <p>Checklist de boas práticas de segurança para servidores Linux.</p>
+      </li>
+      <!-- Adicione mais documentos de Infraestrutura aqui -->
     </ul>
-    -->
+  </div>
 
-    <footer>
-        <p>&copy; 2025 Bruno Schmitz. Todos os direitos reservados.</p>
-    </footer>
+  <!-- Modelo para futuras categorias -->
+  <!--
+  <div class="category-section" id="cloud">
+    <ul class="menu">
+      <li>
+        <a href="doc_cloud.html" target="_blank">
+          <i class="fas fa-cloud"></i> Título da Doc
+        </a>
+        <p>Descrição da documentação sobre cloud computing.</p>
+      </li>
+    </ul>
+  </div>
+  -->
 
-    <a href="#" class="back-to-top" id="backToTop">
-        <i class="fas fa-arrow-up"></i>
-    </a>
+  <footer>
+    <p>&copy; 2025 Bruno Schmitz. Todos os direitos reservados.</p>
+  </footer>
 
-    <script>
-        // Mostrar/esconder o botão "Voltar ao topo"
-        const backToTopButton = document.getElementById('backToTop');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 300) {
-                backToTopButton.classList.add('show');
-            } else {
-                backToTopButton.classList.remove('show');
-            }
+  <a href="#" class="back-to-top" id="backToTop">
+    <i class="fas fa-arrow-up"></i>
+  </a>
+
+  <script>
+    // Alternar categorias
+    const buttons = document.querySelectorAll(".category-btn");
+    const sections = document.querySelectorAll(".category-section");
+
+    buttons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        buttons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        const category = btn.getAttribute("data-category");
+        sections.forEach(section => {
+          section.classList.remove("active");
+          if (section.id === category) {
+            section.classList.add("active");
+          }
         });
-    </script>
+      });
+    });
+
+    // Mostrar botão "voltar ao topo"
+    const backToTopButton = document.getElementById('backToTop');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 300) {
+        backToTopButton.classList.add('show');
+      } else {
+        backToTopButton.classList.remove('show');
+      }
+    });
+  </script>
 </body>
 </html>
