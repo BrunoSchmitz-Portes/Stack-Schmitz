@@ -10,16 +10,28 @@
         header { background-color: #333; color: #fff; padding: 20px; text-align: center; }
         h1 { margin: 0; font-size: 28px; }
         header p { margin: 5px 0 0; font-size: 16px; }
+
+        .category-title {
+            margin: 30px 20px 10px;
+            font-size: 22px;
+            color: #222;
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 5px;
+        }
+
         .menu { list-style-type: none; padding: 0; margin: 20px; }
         .menu li { background: #ffffff; margin: 15px 0; padding: 15px; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
         .menu a { color: #333; text-decoration: none; font-size: 18px; display: flex; align-items: center; }
         .menu a:hover { text-decoration: underline; }
         .menu i { margin-right: 10px; }
         .menu p { margin: 5px 0 0 28px; font-size: 14px; color: #666; }
+
         footer { background-color: #333; color: #fff; text-align: center; padding: 10px; margin-top: 20px; }
         footer p { margin: 0; }
+
         .back-to-top { position: fixed; bottom: 20px; right: 20px; background-color: #333; color: #fff; padding: 10px; border-radius: 50%; text-decoration: none; display: none; }
         .back-to-top.show { display: block; }
+
         @media (max-width: 600px) {
             body { margin: 10px; }
             h1 { font-size: 24px; }
@@ -35,6 +47,9 @@
     </header>
 
     <h2 style="margin: 20px;">Escolha a documentação que deseja ler</h2>
+
+    <!-- CATEGORIA: Documentações ORACLE -->
+    <h3 class="category-title">Documentações ORACLE</h3>
     <ul class="menu">
         <li>
             <a href="https://brunoschmitz-portes.github.io/documentacoes-oracle/instalar_oracle_19c.html" target="_blank">
@@ -48,8 +63,20 @@
             </a>
             <p>Guia completo para instalar o Oracle Grid Standalone 19c no Oracle Linux 7.9.</p>
         </li>
-        <!-- Adicione mais links para outras documentações -->
     </ul>
+
+    <!-- MODELO PARA FUTURAS CATEGORIAS -->
+    <!-- 
+    <h3 class="category-title">Documentações LINUX</h3>
+    <ul class="menu">
+        <li>
+            <a href="LINK_PARA_DOC.html" target="_blank">
+                <i class="fas fa-terminal"></i> Nome do Documento
+            </a>
+            <p>Descrição breve do conteúdo.</p>
+        </li>
+    </ul>
+    -->
 
     <footer>
         <p>&copy; 2025 Bruno Schmitz. Todos os direitos reservados.</p>
@@ -60,7 +87,7 @@
     </a>
 
     <script>
-        // Script para mostrar/esconder o botão "Voltar ao topo"
+        // Mostrar/esconder o botão "Voltar ao topo"
         const backToTopButton = document.getElementById('backToTop');
         window.addEventListener('scroll', () => {
             if (window.scrollY > 300) {
