@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Como investigar erros no Oracle com ADRCI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.7;
+      background-color: #f4f4f4;
+      color: #333;
+      padding: 20px;
+      max-width: 900px;
+      margin: auto;
+    }
+    h1, h2 {
+      color: #2c3e50;
+    }
+    code {
+      background: #eee;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+    .step {
+      margin-bottom: 30px;
+    }
+    .important {
+      background: #fff3cd;
+      padding: 10px;
+      border-left: 6px solid #ffc107;
+      margin-top: 15px;
+      border-radius: 4px;
+    }
+    .icon {
+      margin-right: 6px;
+      color: #2980b9;
+    }
+    .note {
+      background: #d1ecf1;
+      padding: 10px;
+      border-left: 6px solid #0c5460;
+      border-radius: 4px;
+      margin: 15px 0;
+    }
+    .highlight {
+      background-color: #e2ffe2;
+      border-left: 6px solid #28a745;
+      padding: 10px;
+      border-radius: 4px;
+      margin: 15px 0;
+    }
+    img {
+      max-width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin: 20px 0;
+    }
+    footer {
+      text-align: center;
+      margin-top: 50px;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+
+  <h1><i class="fas fa-database icon"></i> Investigando erros no Oracle com ADRCI</h1>
+  <p><strong>Atualizado:</strong> Agosto/2025</p>
+
+  <div class="step">
+    <h2>🚨 Introdução</h2>
+    <p>Se você já se deparou com um erro do tipo <code>ORA-600</code> ou outro erro interno do Oracle, sabe como pode ser trabalhoso buscar essas informações no <code>alert.log</code>.</p>
+    <p>O <strong>ADRCI</strong> (Automatic Diagnostic Repository Command Interface) é uma ferramenta da Oracle que permite investigar erros com muito mais facilidade, exibindo histórico de problemas, datas e caminhos completos para os traces.</p>
+  </div>
+
+  <div class="step">
+    <h2>📍 1. Configure o ambiente</h2>
+    <p>Antes de iniciar o ADRCI, defina o caminho base do Oracle:</p>
+    <div class="highlight">
+      <code>export ADR_BASE='/u01/app/oracle'</code>
+    </div>
+  </div>
+
+  <div class="step">
+    <h2>🔧 2. Acesse o ADRCI</h2>
+    <p>Execute o binário diretamente:</p>
+    <div class="highlight">
+      <code>$ORACLE_HOME/bin/adrci</code>
+    </div>
+  </div>
+
+  <div class="step">
+    <h2>📂 3. Liste os diretórios disponíveis</h2>
+    <p>Dentro do ADRCI, digite:</p>
+    <div class="highlight">
+      <code>show home</code>
+    </div>
+
+    <p>O comando retornará algo parecido com:</p>
+    <div class="note">
+      diag/rdbms/orcl/orcl<br>
+      diag/tnslsnr/dbserver/listener<br>
+      diag/diagtool/user_oracle/adrci_xxxxx
+    </div>
+
+    <p>Escolha o diretório referente ao seu banco, geralmente algo como <code>diag/rdbms/orcl/orcl</code>.</p>
+
+    <img src="img/home-adrc.png" alt="Exemplo do show home no ADRCI">
+  </div>
+
+  <div class="step">
+    <h2>🏠 4. Defina o diretório da base</h2>
+    <div class="highlight">
+      <code>set home diag/rdbms/orcl/orcl</code>
+    </div>
+  </div>
+
+  <div class="step">
+    <h2>📝 5. Veja os problemas registrados</h2>
+    <div class="highlight">
+      <code>show problem</code>
+    </div>
+
+    <p>Esse comando exibe todos os erros registrados no banco, com seus IDs e datas.</p>
+    <img src="img/erro-adrci.png" alt="Exemplo de show problem no ADRCI">
+  </div>
+
+  <div class="step">
+    <h2>🔎 6. Consulte o incidente específico</h2>
+    <p>Escolha um ID listado no passo anterior (ex: <code>121100</code>) e use:</p>
+    <div class="highlight">
+      <code>show incident -mode detail -p "incident_id=121100"</code>
+    </div>
+
+    <p>Esse comando mostra o erro detalhado e o caminho completo para o arquivo de trace.</p>
+    <img src="img/trace-output.png" alt="Exemplo de incident detail output">
+  </div>
+
+  <div class="step">
+    <h2>📄 7. Exiba o trace completo</h2>
+    <p>Copie o caminho do trace retornado e utilize:</p>
+    <div class="highlight">
+      <code>show trace /u01/app/oracle/diag/rdbms/orcl/orcl/trace/pegada_ora_31685.trc</code>
+    </div>
+
+    <div class="important">
+      <strong>Dica:</strong> Você pode abrir esse trace com um editor de texto tradicional também, se preferir analisar fora do ADRCI.
+    </div>
+  </div>
+
+  <footer>
+    <p>Documentação criada por Bruno Schmitz – Stack-Schmitz © 2025</p>
+  </footer>
+
+</body>
+</html>
