@@ -140,6 +140,12 @@
       height: 100%;
     }
 
+    .cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 30px; /* estava 20px */
+    }
+
     .card:hover {
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
@@ -420,6 +426,7 @@
   </script>
 </body>
 </html>
+
 
 
 
