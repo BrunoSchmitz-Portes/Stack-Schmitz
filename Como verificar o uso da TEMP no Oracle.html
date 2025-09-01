@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Como verificar o uso da TEMP no Oracle</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.7;
+      background-color: #f4f4f4;
+      color: #333;
+      padding: 20px;
+      max-width: 900px;
+      margin: auto;
+    }
+    h1, h2 {
+      color: #2c3e50;
+    }
+    code {
+      background: #eee;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+    .step {
+      margin-bottom: 30px;
+    }
+    .important {
+      background: #fff3cd;
+      padding: 10px;
+      border-left: 6px solid #ffc107;
+      margin-top: 15px;
+      border-radius: 4px;
+    }
+    .icon {
+      margin-right: 6px;
+      color: #2980b9;
+    }
+    .note {
+      background: #d1ecf1;
+      padding: 10px;
+      border-left: 6px solid #0c5460;
+      border-radius: 4px;
+      margin: 15px 0;
+    }
+    .highlight {
+      background-color: #e2ffe2;
+      border-left: 6px solid #28a745;
+      padding: 10px;
+      border-radius: 4px;
+      margin: 15px 0;
+    }
+    img {
+      max-width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin: 20px 0;
+    }
+    footer {
+      text-align: center;
+      margin-top: 50px;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+
+  <h1><i class="fas fa-database icon"></i> Verificando o consumo da TEMP no Oracle</h1>
+  <p><strong>Atualizado:</strong> Setembro/2025</p>
+
+  <div class="step">
+    <h2>📌 Introdução</h2>
+    <p>A <strong>tablespace TEMP</strong> no Oracle é usada para operações intermediárias que não podem ser realizadas inteiramente em memória, como ordenações, joins e criação de índices. Quando a TEMP se esgota, isso pode gerar erros do tipo <code>ORA-01652</code>, impactando diretamente as aplicações.</p>
+    <p>Por isso, é essencial monitorar o uso dessa tablespace para evitar gargalos de performance e falhas em sessões.</p>
+  </div>
+
+  <div class="step">
+    <h2>📊 1. Verificando espaço utilizado na TEMP</h2>
+    <p>Use a query abaixo para consultar o espaço total, utilizado, livre e o percentual livre da sua TEMP:</p>
+    
+    <div class="highlight">
+<code>SELECT tarea.tablespace_name,<br>
+       tarea.tsize,<br>
+       tcorrente,<br>
+       ROUND(tarea.tsize - tcorrente + SUM(NVL(free.bytes, 0))/1024/1024, 0) AS livre,<br>
+       ROUND(((tarea.tsize - tcorrente + SUM(NVL(free.bytes, 0))/1024/1024)*100)/tarea.tsize, 0) AS "% Livre"<br>
+FROM dba_free_space free,<br>
+     (SELECT tablespace_name,<br>
+             SUM(a.bytes)/1024/1024 tcorrente,<br>
+             SUM(DECODE(NVL(a.maxbytes,0),0,a.bytes,a.maxbytes))/1024/1024 tsize<br>
+      FROM dba_temp_files a<br>
+      GROUP BY tablespace_name) tarea<br>
+WHERE free.tablespace_name(+) = tarea.tablespace_name<br>
+GROUP BY tarea.tablespace_name, tarea.tsize, tcorrente<br>
+ORDER BY 5 DESC;</code>
+    </div>
+
+    <img src="img/info_temp.png" alt="Consulta de espaço utilizado na TEMP">
+
+    <div class="note">
+      <strong>Entenda os campos da consulta:</strong><br><br>
+      <strong>TABLESPACE_NAME</strong>: é o nome da sua TEMP, anote para a próxima consulta.<br>
+      <strong>TSIZE</strong>: é o tamanho total da tablespace, ou seja, o espaço máximo alocado.<br>
+      <strong>TCORRENTE</strong>: espaço usado no momento.<br>
+      <strong>LIVRE</strong>: espaço livre, em GB.<br>
+      <strong>% LIVRE</strong>: representa o espaço livre em porcentagem para facilitar a visualização.
+    </div>
+  </div>
+
+  <div class="step">
+    <h2>🔍 2. Identificando sessões que consomem TEMP</h2>
+    <p>Agora que você já sabe o quanto está sendo usado da TEMP, é hora de identificar quem está consumindo. Use a query abaixo:</p>
+
+    <div class="highlight">
+<code>SELECT  su.username,<br>
+        ses.sid,<br>
+        ses.serial#,<br>
+        su.tablespace,<br>
+        CEIL((su.blocks * dt.block_size) / 1048576) AS MB<br>
+FROM    gv$sort_usage su,<br>
+        dba_tablespaces dt,<br>
+        gv$session ses<br>
+WHERE   su.tablespace = dt.tablespace_name<br>
+AND     su.session_addr = ses.saddr<br>
+AND     dt.tablespace_name = 'TEMP'<br>
+ORDER BY ses.inst_id;</code>
+    </div>
+
+    <img src="img/consome-temp.png" alt="Consulta de sessões que consomem TEMP">
+
+    <div class="note">
+      <strong>Campos da consulta:</strong><br><br>
+      <strong>USERNAME</strong>: usuário de banco que está executando operações.<br>
+      <strong>SID</strong>: ID da sessão ativa.<br>
+      <strong>SERIAL#</strong>: número serial da sessão (usado junto do SID para kill, por exemplo).<br>
+      <strong>TABLESPACE</strong>: nome da tablespace TEMP que está sendo utilizada.<br>
+      <strong>MB</strong>: quantidade de espaço (em MB) que está sendo usada pela sessão.
+    </div>
+  </div>
+
+  <footer>
+    <p>Documentação criada por Bruno Schmitz – Stack-Schmitz © 2025</p>
+  </footer>
+
+</body>
+</html>
