@@ -121,13 +121,15 @@
     }
 
     /* Cards */
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fill,minmax(280px,1fr));
-      gap: 20px;
-      padding: 0;
-      list-style: none;
-    }
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 30px 20px; /* 30px na vertical, 20px na horizontal */
+  padding: 0;
+  list-style: none;
+}
+
+
 
     .card {
       background-color: var(--card-bg);
@@ -424,6 +426,7 @@
   </script>
 </body>
 </html>
+
 
 
 
